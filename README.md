@@ -37,6 +37,7 @@ bash revision/run_all.sh infer gemma3-12b
 # 4. Baselines, controls, statistics and tables
 bash revision/run_all.sh knn
 bash revision/run_all.sh encoders
+bash revision/run_all.sh senada        # SENADA retrained on the same partition
 bash revision/run_all.sh ablation gemma3-12b
 bash revision/run_all.sh stats
 python revision/make_tables.py --report-dir revision/report --out-dir revision/report/latex

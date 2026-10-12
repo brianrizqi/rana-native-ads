@@ -27,7 +27,7 @@ INDEX=revision/index/bge-m3
 FMT=reasoning_first
 MAIN_MODELS="gemma3-12b qwen3-8b gemma2-9b deepseek-r1-llama-8b qwen3.5-9b gemma3-4b llama3.2-1b qwen2.5-14b gemma3-1b qwen3.5-2b gemma3-270m"
 ABL_MODELS="gemma3-12b qwen3-8b gemma3-1b"        # R2: k and ablations on several model sizes
-FACTORIAL_MODELS="${FACTORIAL_MODELS:-gemma3-4b}"   # R1-C5 / R2: same model, four output formats
+FACTORIAL_MODELS="${FACTORIAL_MODELS:-gemma3-4b gemma3-12b}"   # R1-C5 / R2: same model, four output formats
 # Decide BEFORE the first finetune and keep it for every run:
 #   EVIDENCE=revision/splits/main/evidence.jsonl bash revision/run_all.sh finetune   -> targets carry per-signal evidence
 #   (unset)                                                                         -> targets carry the four signals only
@@ -129,6 +129,9 @@ encoders)
     python revision/encoder_baselines.py --model $e --split-dir $SPLIT --out-dir "revision/results/encoders__${e##*/}"
   done
   ;;
+senada)
+  python revision/senada_baseline.py --split-dir $SPLIT --out-dir revision/results/encoders__senada
+  ;;
 judge)
   : "${OPENROUTER_API_KEY:?export OPENROUTER_API_KEY first}"
   for m in ${models:-gemma3-12b qwen3-8b gemma2-9b deepseek-r1-llama-8b}; do
@@ -164,7 +167,9 @@ stats)
     --out-dir revision/report/baselines \
     --pair "knn/bge-m3/test__weighted_k5:gemma3-12b__$FMT/test__rag_k5" \
     --pair "encoders__xlm-roberta-base/test:gemma3-12b__$FMT/test__rag_k5" \
-    --pair "encoders__indobert-base-p1/test:gemma3-12b__$FMT/test__rag_k5"
+    --pair "encoders__indobert-base-p1/test:gemma3-12b__$FMT/test__rag_k5" \
+    --pair "encoders__senada/test:gemma3-12b__$FMT/test__rag_k5" \
+    --pair "encoders__senada/test_xsource:gemma3-12b__$FMT/test_xsource__rag_k5"
   # Faithfulness tables
   python revision/stats.py --runs "revision/results/*__$FMT/test__rag_k5_intervene-*.jsonl" --out-dir revision/report/faithfulness
   ;;

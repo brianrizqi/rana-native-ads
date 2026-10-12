@@ -1,4 +1,14 @@
 run,signal,n,coverage,accuracy,macro_f1
+encoders__senada/test,positive_tone,2165,1.0,0.772286,0.586472
+encoders__senada/test,persuasive,2165,1.0,0.820323,0.813707
+encoders__senada/test,brand_promotion,2165,1.0,0.797691,0.782905
+encoders__senada/test,single_perspective,2165,1.0,0.755196,0.628296
+encoders__senada/test,label_matches_rule_on_own_signals,2165,,0.91455,
+encoders__senada/test_xsource,positive_tone,2367,1.0,0.762991,0.557898
+encoders__senada/test_xsource,persuasive,2367,1.0,0.781158,0.778074
+encoders__senada/test_xsource,brand_promotion,2367,1.0,0.787495,0.787487
+encoders__senada/test_xsource,single_perspective,2367,1.0,0.729616,0.594894
+encoders__senada/test_xsource,label_matches_rule_on_own_signals,2367,,0.898606,
 gemma3-12b__reasoning_first/test__norag,positive_tone,2165,1.0,0.829561,0.685221
 gemma3-12b__reasoning_first/test__norag,persuasive,2165,1.0,0.874365,0.867136
 gemma3-12b__reasoning_first/test__norag,brand_promotion,2165,1.0,0.870208,0.866926

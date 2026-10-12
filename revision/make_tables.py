@@ -131,6 +131,7 @@ def main():
             ("encoders__indobert-base-p1/test", "encoders__indobert-base-p1/test_xsource", "IndoBERT"),
             ("encoders__bert-base-multilingual-cased/test", "encoders__bert-base-multilingual-cased/test_xsource", "Multilingual BERT"),
             ("encoders__xlm-roberta-base/test", "encoders__xlm-roberta-base/test_xsource", "XLM-RoBERTa"),
+            ("encoders__senada/test", "encoders__senada/test_xsource", "SENADA"),
             ("zeroshot__gemma3-12b/test__norag", None, "Gemma 3 12B, zero-shot"),
             ("gemma3-12b__reasoning_first/test__norag", "gemma3-12b__reasoning_first/test_xsource__norag", "RANA without retrieval"),
             ("gemma3-12b__reasoning_first/test__rag_k5", "gemma3-12b__reasoning_first/test_xsource__rag_k5", "RANA")]

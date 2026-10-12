@@ -1,0 +1,6 @@
+# Article texts are never committed; obtain them on request.
+native_ads_dataset.xlsx
+*.jsonl
+data/
+.DS_Store
+__pycache__/

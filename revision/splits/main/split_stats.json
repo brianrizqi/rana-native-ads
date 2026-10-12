@@ -1,0 +1,26 @@
+{
+  "articles": 14886,
+  "clusters": 14586,
+  "multi_member_clusters": 221,
+  "articles_in_multi_member_clusters": 521,
+  "largest_cluster": 22,
+  "cross_language_clusters": 0,
+  "conflicting_label_clusters": 6,
+  "clusters_spanning_splits": 0,
+  "counts": {
+    "test/en/berita murni": 353,
+    "test/en/native ads": 364,
+    "test/id/berita murni": 731,
+    "test/id/native ads": 717,
+    "test_xsource/id/berita murni": 1162,
+    "test_xsource/id/native ads": 1205,
+    "train/en/berita murni": 919,
+    "train/en/native ads": 945,
+    "train/id/berita murni": 3660,
+    "train/id/native ads": 3578,
+    "val/en/berita murni": 141,
+    "val/en/native ads": 146,
+    "val/id/berita murni": 489,
+    "val/id/native ads": 476
+  }
+}

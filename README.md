@@ -47,4 +47,4 @@ python revision/make_tables.py --report-dir revision/report --out-dir revision/r
 
 ## Model weights
 
-LoRA adapter weights for RANA will be released on Hugging Face upon acceptance, subject to the license of the base model.
+LoRA adapter weights for RANA (Gemma 3 12B, seed 3407) are available at https://huggingface.co/brianrizqi/rana-gemma3-12b-lora, subject to the Gemma terms of use.

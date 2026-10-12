@@ -1,0 +1,25 @@
+{
+  "test": {
+    "n": 2165,
+    "accuracy_majority_vote": 0.8938,
+    "accuracy_rana": 0.9709,
+    "by_lang": {
+      "id": 0.8536,
+      "en": 0.9749
+    },
+    "only_rana_correct": 187,
+    "only_vote_correct": 20,
+    "mcnemar_p": 3.612839209306161e-35
+  },
+  "test_xsource": {
+    "n": 2367,
+    "accuracy_majority_vote": 0.8509,
+    "accuracy_rana": 0.7921,
+    "by_lang": {
+      "id": 0.8509
+    },
+    "only_rana_correct": 233,
+    "only_vote_correct": 372,
+    "mcnemar_p": 1.755614728145626e-08
+  }
+}

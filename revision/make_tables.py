@@ -63,7 +63,7 @@ def table(caption, label, header, rows, colspec, wide=True, note=None):
         lines.append("\\renewcommand{\\tblwidth}{\\textwidth}%")
     lines += ["\\small" if wide else "\\footnotesize", "\\centering", f"\\caption{{{caption}}}\\label{{{label}}}",
               f"\\begin{{tabular*}}{{\\tblwidth}}{{@{{\\extracolsep{{\\fill}}}}{colspec}@{{}}}}", "\\toprule",
-              " & ".join(h if h.startswith("$") else f"\\textbf{{{h}}}" for h in header) + " \\\\", "\\midrule"]
+              " & ".join(h if "$" in h else f"\\textbf{{{h}}}" for h in header) + " \\\\", "\\midrule"]
     lines += [" & ".join(r) + " \\\\" for r in rows]
     lines += ["\\bottomrule", "\\end{tabular*}"]
     if note:
@@ -116,12 +116,33 @@ def main():
         d = {r["lang"]: r for r in bl if r["run"] == run}
         if "id" in d and "en" in d:
             g = d.get("id_minus_en", {})
+            mcc = lambda x: f"{float(x):.3f}" if x not in (None, "") else "--"
             rows.append([name, f"{pc(d['id']['accuracy'])} [{pc(d['id']['acc_ci_low'])}, {pc(d['id']['acc_ci_high'])}]",
+                         pc(d['id']['macro_f1']), mcc(d['id']['mcc']),
                          f"{pc(d['en']['accuracy'])} [{pc(d['en']['acc_ci_low'])}, {pc(d['en']['acc_ci_high'])}]",
-                         pval(g.get("fisher_p"))])
+                         pc(d['en']['macro_f1']), mcc(d['en']['mcc']), pval(g.get("fisher_p"))])
     if rows:
-        save("tbl_lang", table("Accuracy (\\%, Wilson 95\\% interval) by language on the test partition with retrieval, and Fisher's exact test for the difference.",
-                               "tbl_lang", ["Model", "Indonesian", "English", "Fisher $p$"], rows, "LRRR"))
+        save("tbl_lang", table("Results by language on the test partition with retrieval: accuracy (\\%, Wilson 95\\% interval), macro-F1 (\\%), and Matthews correlation for Indonesian (ID, 1,448 articles) and English (EN, 717 articles), with Fisher's exact test for the accuracy difference. Per-class precision, recall, and F1 are in the released metric files.",
+                               "tbl_lang", ["Model", "ID accuracy", "ID F1", "ID MCC", "EN accuracy", "EN F1", "EN MCC", "Fisher $p$"],
+                               rows, "LRRRRRRR"))
+
+    # 2b. Retrieval effect in full: discordant pairs, difference with interval, effect sizes
+    rows = []
+    for key, name in MODEL_NAMES.items():
+        base = f"{key}__reasoning_first"
+        for split, label in (("test", "Test"), ("test_xsource", "Withheld")):
+            r = mcn.get((f"{base}/{split}__norag", f"{base}/{split}__rag_k5"))
+            if not r:
+                continue
+            d = 100 * float(r["diff_B_minus_A"])
+            rows.append([name if label == "Test" else "", label, r["b_only_A_correct"], r["c_only_B_correct"],
+                         f"{d:+.2f} [{100 * float(r['diff_ci_low']):+.2f}, {100 * float(r['diff_ci_high']):+.2f}]",
+                         f"{float(r['odds_ratio_c_over_b']):.2f}", f"{float(r['cohens_g']):.3f}",
+                         pval(r["p_exact"]), pval(r["p_holm"])])
+    if rows:
+        save("tbl_mcnemar", table("Retrieval effect for every model: articles correct only without retrieval ($b$) and only with it ($c$), accuracy difference in points with its 95\\% paired bootstrap interval, odds ratio $c/b$, Cohen's $g$, and exact McNemar $p$ before and after Holm correction over the 22 comparisons.",
+                                  "tbl_mcnemar", ["Model", "Set", "$b$", "$c$", "Difference", "OR", "$g$", "$p$", "Holm $p$"],
+                                  rows, "LLRRRRRRR"))
 
     # 3. Baselines against RANA
     bm = by_run(load(R / "baselines/metrics.csv"))

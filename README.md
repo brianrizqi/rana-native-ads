@@ -9,14 +9,14 @@ RANA fine-tunes a language model to state four assessments of promotional framin
 | Path | Contents |
 |---|---|
 | `revision/*.py`, `revision/*.sh` | Full pipeline: partitioning and deduplication, retrieval index, fine-tuning, inference, baselines, statistics, tables |
-| `revision/splits/main/ids_hashes.csv` | For every article: identifier, partition, duplicate-cluster identifier, SHA-256 of the cleaned text, language, label, outlet, section |
+| `revision/splits/main/ids_hashes.csv` | For every article: identifier, partition, duplicate-cluster identifier, SHA-256 of the normalized article text, language, label, outlet, section, and the four signal annotations (`positive_tone`: ya/netral/tidak; `persuasive`, `brand_promotion`, `single_perspective`: ya/tidak). Labels: `native ads`, `berita murni` (Pure News) |
 | `revision/splits/main/split_stats.json` | Partition sizes and duplicate-cluster statistics |
 | `revision/release/predictions/` | Per-article predictions of every reported run: label, four assessments, retrieved neighbor ids (no text) |
 | `revision/report/` | Metrics, McNemar tests and the LaTeX tables reported in the paper |
 
 ## Data availability
 
-Article texts and URLs are **not** included, because the texts remain under the copyright of the originating publishers. They are available from the corresponding author for non-commercial research under a data use agreement. The Indonesian portion was published as the Native Ads Dataset (Darnoto et al., *Scientific Data*, doi:10.1038/s41597-024-04341-6). With a copy of the articles, `ids_hashes.csv` lets you verify that each text matches the one we used and rebuild the exact partition.
+Article texts and URLs are **not** included, because the texts remain under the copyright of the originating publishers. They are available from the corresponding author for non-commercial research under a data use agreement. The Indonesian portion was published as the Native Ads Dataset (Darnoto et al., *Scientific Data*, doi:10.1038/s41597-024-04341-6). With a copy of the articles, `ids_hashes.csv` lets you verify that each text matches the one we used and rebuild the exact partition. The hash is `sha256(normalize_for_hash(text))` from `revision/common.py` (Unicode NFKC, lowercase, punctuation replaced by spaces, whitespace collapsed), computed on the article text before source cues are removed.
 
 ## Reproducing the experiments
 

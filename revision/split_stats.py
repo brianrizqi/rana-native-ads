@@ -1,7 +1,7 @@
 """Partition and duplicate-cluster statistics from the frozen split files, and the public release table.
 
 Splits frozen before manifest.json and ids_hashes.csv existed still carry cluster_id in every record,
-so both are rebuilt here from the JSONL files. ids_hashes.csv holds no URL and no text.
+so both are rebuilt here from the JSONL files. ids_hashes.csv holds the label and the four signal annotations, but no URL and no text.
 
     python revision/split_stats.py --split-dir revision/splits/main
 """
@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import normalize_for_hash, read_jsonl, sha256, write_json
+from common import SIGNALS, normalize_for_hash, read_jsonl, sha256, write_json
 
 SPLITS = ("train", "val", "test", "test_xsource")
 
@@ -57,11 +57,11 @@ def main():
 
     with open(d / "ids_hashes.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["id", "split", "cluster_id", "text_sha256", "lang", "label", "host", "section"])
+        w.writerow(["id", "split", "cluster_id", "text_sha256", "lang", "label", "host", "section"] + list(SIGNALS))
         for r in sorted(rows, key=lambda r: (r["split"], str(r["id"]))):
             h = r.get("text_sha256") or sha256(normalize_for_hash(r["text"]))
             w.writerow([r["id"], r["split"], r.get("cluster_id", ""), h, r["lang"], r["label"],
-                        r.get("host", ""), r.get("section", "")])
+                        r.get("host", ""), r.get("section", "")] + [(r.get("signals") or {}).get(s, "") for s in SIGNALS])
     write_json(d / "split_stats.json", stats)
     print(f"✅ {d / 'ids_hashes.csv'} and {d / 'split_stats.json'} (no URLs, no text)")
 

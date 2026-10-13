@@ -1,0 +1,66 @@
+{
+  "model_key": "gemma3-4b",
+  "base_model": "unsloth/gemma-3-4b-it-bnb-4bit",
+  "format": "label_first",
+  "use_evidence": false,
+  "rag": true,
+  "index_dir": "revision/index/bge-m3",
+  "k": 5,
+  "rag_dropout": 0.5,
+  "max_chars": 1500,
+  "neighbor_chars": 400,
+  "hyperparameters": {
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.0,
+    "learning_rate": 0.0002,
+    "epochs": 2,
+    "per_device_batch": 1,
+    "grad_accum": 16,
+    "warmup_ratio": 0.03,
+    "weight_decay": 0.01,
+    "max_seq_length": 2048,
+    "seed": 3407
+  },
+  "overrides": {},
+  "effective_batch": 16,
+  "n_train": 9102,
+  "n_val": 400,
+  "n_train_with_references": 4617,
+  "n_dropped_too_long": {
+    "train": 0,
+    "val": 0
+  },
+  "loss": "answer tokens only",
+  "split_dir": "revision/splits/main",
+  "split_file_sha256": {
+    "excluded.jsonl": "00d30a0e96479149c5a7adc26115b0ff07ed07bdc115188ab3020196d7c6a224",
+    "test.jsonl": "ac6075e0f21596283b7960819b451b021aa4c0347c60353d13bca671264f2769",
+    "test_xsource.jsonl": "f992bc43d14ac952b7a59ff1173011b5a14a6de97dc89e33242df83f2be60b47",
+    "train.jsonl": "f54409d2828b0014d0b0990ff82c715c2ac572f8ec99cc60104f1fd4e7856088",
+    "val.jsonl": "9cc3b966099c2503560f3b825ca93eb65bfce1cc7402a25c8ca335903c71ff7a"
+  },
+  "train_metrics": {
+    "train_runtime": 10870.9118,
+    "train_samples_per_second": 1.675,
+    "train_steps_per_second": 0.105,
+    "total_flos": 3.708823645488997e+17,
+    "train_loss": 0.02847901070474112,
+    "epoch": 2.0
+  },
+  "best_checkpoint": "revision/models/gemma3-4b__label_first/checkpoints/checkpoint-1100",
+  "best_eval_loss": 0.025213200598955154,
+  "versions": {
+    "python": "3.10.12",
+    "torch": "2.9.1+cu128",
+    "transformers": "5.3.0",
+    "peft": "0.18.1",
+    "trl": "0.24.0",
+    "unsloth": "2026.4.6",
+    "datasets": "4.3.0",
+    "sentence_transformers": "6.1.0",
+    "numpy": "2.2.6",
+    "scikit-learn": "1.7.2",
+    "scipy": "1.15.3"
+  }
+}

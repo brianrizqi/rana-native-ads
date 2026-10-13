@@ -12,6 +12,7 @@ RANA fine-tunes a language model to state four assessments of promotional framin
 | `revision/splits/main/ids_hashes.csv` | For every article: identifier, partition, duplicate-cluster identifier, SHA-256 of the normalized article text, language, label, outlet, section, and the four signal annotations (`positive_tone`: ya/netral/tidak; `persuasive`, `brand_promotion`, `single_perspective`: ya/tidak). Labels: `native ads`, `berita murni` (Pure News) |
 | `revision/splits/main/split_stats.json` | Partition sizes and duplicate-cluster statistics |
 | `revision/release/predictions/` | Per-article predictions of every reported run: label, four assessments, retrieved neighbor ids (no text) |
+| `revision/release/run_configs/` | Configuration of every fine-tuning run: base model, hyperparameters, seed, split-file hashes, best checkpoint and package versions |
 | `revision/report/` | Metrics, McNemar tests and the LaTeX tables reported in the paper |
 
 ## Data availability

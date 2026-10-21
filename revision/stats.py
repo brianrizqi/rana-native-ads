@@ -99,6 +99,8 @@ def core_metrics(rows, n_boot, rng):
     gold = [r["label_gold"] for r in rows]
     pred = [r.get("label_pred") or "invalid" for r in rows]
     n, k = len(gold), sum(g == p for g, p in zip(gold, pred))
+    # An invalid output is an error in every metric: score it as the wrong class, as accuracy does.
+    pred = [p if p in LABELS else next(l for l in LABELS if l != g) for g, p in zip(gold, pred)]
     per, macro = prf(gold, pred, LABELS)
     lo, hi = wilson(k, n)
     boots = bootstrap_macro_f1(gold, pred, n_boot, rng) if n_boot and n else []

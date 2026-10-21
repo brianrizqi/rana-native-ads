@@ -225,18 +225,25 @@ def main():
         save("tbl_seeds", table("RANA fine-tuned with three training seeds: accuracy (\\%) on the test partition and the withheld publisher, without and with retrieval. Seed 3407 is the run reported elsewhere.",
                                 "tbl_seeds", ["Seed", "Test", "Test RAG", "Withheld", "Withheld RAG"], rows, "LRRRR"))
 
-    # 6. Signal agreement for RANA
-    sg = load(R / "main/signals.csv")
+    # 6. Signal agreement for RANA and, for comparison, SENADA's signal sub-models
+    sg = load(R / "main/signals.csv") + (load(R / "baselines/signals.csv") if (R / "baselines/signals.csv").exists() else [])
+    names = {"positive_tone": "Positive tone", "persuasive": "Persuasive language",
+             "brand_promotion": "Brand promotion", "single_perspective": "Single perspective"}
     rows = []
-    for s in ("positive_tone", "persuasive", "brand_promotion", "single_perspective"):
-        t = next((r for r in sg if r["run"] == "gemma3-12b__reasoning_first/test__rag_k5" and r["signal"] == s), None)
-        x = next((r for r in sg if r["run"] == "gemma3-12b__reasoning_first/test_xsource__rag_k5" and r["signal"] == s), None)
-        if t or x:
-            label = {"positive_tone": "Positive tone", "persuasive": "Persuasive language",
-                     "brand_promotion": "Brand promotion", "single_perspective": "Single perspective"}[s]
-            rows.append([label, pc(t and t["accuracy"]), pc(t and t["macro_f1"]), pc(x and x["accuracy"]), pc(x and x["macro_f1"])])
+    for title, test_run, xs_run in (("RANA", "gemma3-12b__reasoning_first/test__rag_k5",
+                                     "gemma3-12b__reasoning_first/test_xsource__rag_k5"),
+                                    ("SENADA sub-models", "encoders__senada/test", "encoders__senada/test_xsource")):
+        block = []
+        for s in names:
+            t = next((r for r in sg if r["run"] == test_run and r["signal"] == s), None)
+            x = next((r for r in sg if r["run"] == xs_run and r["signal"] == s), None)
+            if t or x:
+                block.append([names[s], pc(t and t["accuracy"]), pc(t and t["macro_f1"]), pc(x and x["accuracy"]), pc(x and x["macro_f1"])])
+        if block:
+            rows.append([f"\\multicolumn{{5}}{{@{{}}l}}{{\\textit{{{title}}}}}"])
+            rows += block
     if rows:
-        save("tbl_signals", table("Agreement (\\%) of the signals RANA reports with the annotators: accuracy and macro-F1 on the test partition and on the withheld publisher (W).",
+        save("tbl_signals", table("Agreement (\\%) of the signals reported by RANA and predicted by SENADA's signal sub-models with the annotators: accuracy and macro-F1 on the test partition and on the withheld publisher (W).",
                                   "tbl_signals", ["Signal", "Acc.", "F1", "Acc. W", "F1 W"], rows, "LRRRR", wide=False))
 
     # 7. Faithfulness

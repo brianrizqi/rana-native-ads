@@ -122,7 +122,7 @@ def main():
                          f"{pc(d['en']['accuracy'])} [{pc(d['en']['acc_ci_low'])}, {pc(d['en']['acc_ci_high'])}]",
                          pc(d['en']['macro_f1']), mcc(d['en']['mcc']), pval(g.get("fisher_p"))])
     if rows:
-        save("tbl_lang", table("Results by language on the test partition with retrieval: accuracy (\\%, Wilson 95\\% interval), macro-F1 (\\%), and Matthews correlation for Indonesian (ID, 1,448 articles) and English (EN, 717 articles), with Fisher's exact test for the accuracy difference. Per-class precision, recall, and F1 are in the released metric files.",
+        save("tbl_lang", table("Results by language on the test partition with retrieval: accuracy (\\%, Wilson 95\\% interval), macro-F1 (\\%), and Matthews correlation for Indonesian (ID, 1,448 articles) and English (EN, 717 articles), with Fisher's exact test for the accuracy difference. Per-class precision, recall, and F1 for RANA and the trained baselines are in Table~\\ref{tbl_app_class} (Appendix A), and for every run in the released metric files.",
                                "tbl_lang", ["Model", "ID accuracy", "ID F1", "ID MCC", "EN accuracy", "EN F1", "EN MCC", "Fisher $p$"],
                                rows, "LRRRRRRR"))
 

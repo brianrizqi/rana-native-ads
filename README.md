@@ -44,6 +44,26 @@ bash revision/run_all.sh stats
 python revision/make_tables.py --report-dir revision/report --out-dir revision/report/latex
 ```
 
+### Verifying the release
+
+```bash
+# Rebuild the partition from the article files and check that every file is byte-identical (SHA-256)
+# to the one each reported model was trained and tested on
+python revision/rebuild_split.py --xlsx native_ads_dataset.xlsx --out-dir revision/splits/main \
+    --expect revision/release/run_configs/gemma3-12b__reasoning_first.json
+# Recompute every reported metric from the released per-article predictions
+python revision/repro_check.py --pred-dir revision/release/predictions --report-dir revision/report --tables revision/report/latex
+```
+
+### Second-revision experiments
+
+`revision/queue_round2.sh` runs them in priority order: three seeds for the strongest competitors (`seed_stats.py`),
+topic-controlled accuracy (`topic_control.py`), outlet-balanced, leave-one-publisher-out and target-publisher partitions
+(`make_splits_r2.py`), TF-IDF with per-article predictions (`tfidf_baseline.py`), sentence occlusion
+(`faithfulness_occlusion.py`), counterfactual edits (`counterfactual_edits.py`), the additional English test set
+(`collect_en.py`), source-blinded re-annotation (`annotation_r2.py`) and the human studies (`human_study.py`);
+`revision/stats_round2.sh` writes their reports.
+
 `revision/queue_all.sh` and `revision/queue_extra.sh` run the full set of experiments in the order used for the paper and can be resumed after an interruption. Decoding is greedy, the fine-tuning seed is 3407 (RANA was also trained with seeds 42 and 2024), and the LLM judge (`revision/judge.py`) reads its API key from the `OPENROUTER_API_KEY` environment variable.
 
 ## Model weights

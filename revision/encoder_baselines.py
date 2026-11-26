@@ -30,6 +30,8 @@ def main():
     ap.add_argument("--lr", type=float, default=2e-5)
     ap.add_argument("--batch-size", type=int, default=16)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--tests", nargs="*", default=["test", "test_xsource"],
+                    help="Test sets: names inside --split-dir or paths to JSONL files")
     args = ap.parse_args()
 
     import torch
@@ -66,8 +68,9 @@ def main():
         compute_metrics=metrics)
     trainer.train()
 
-    for split in ("test", "test_xsource"):
-        f = d / f"{split}.jsonl"
+    for t in args.tests:
+        f = Path(t) if t.endswith(".jsonl") else d / f"{t}.jsonl"
+        split = f.stem
         if not f.exists():
             continue
         rows = read_jsonl(f)

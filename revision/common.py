@@ -131,6 +131,30 @@ _ANYWHERE_CUES = [
 ]
 
 
+def split_sentences(text: str, min_chars: int = 25) -> List[str]:
+    """Sentence segmentation shared by the occlusion experiment and the annotation sheets (R2-4).
+
+    Splits after . ! ? (optionally followed by a closing quote or bracket) when whitespace follows, and at
+    line breaks; fragments shorter than min_chars are merged into the preceding sentence. Joining the
+    result with single spaces reproduces the text up to whitespace.
+    """
+    # Scraped paragraphs are often joined without a space ("tubuh.Karena"), so a lowercase letter, a full
+    # stop and an uppercase letter also end a sentence; abbreviations such as "U.S." are left intact.
+    parts = re.split(r"(?<=[.!?])\s+|(?<=[.!?][\"'”’)\]])\s+|\n+|(?<=[a-z)][.!?])(?=[A-Z])", str(text).strip())
+    out: List[str] = []
+    for p in (x.strip() for x in parts):
+        if not p:
+            continue
+        if out and len(p) < min_chars:
+            out[-1] = f"{out[-1]} {p}"
+        else:
+            out.append(p)
+    if len(out) > 1 and len(out[0]) < min_chars:
+        out[1] = f"{out[0]} {out[1]}"
+        out.pop(0)
+    return out
+
+
 def mask_source_cues(text: str) -> str:
     t = str(text)
     for _ in range(3):  # headers can stack, e.g. legal notice then dateline

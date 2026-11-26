@@ -233,6 +233,7 @@ def main():
     ap.add_argument("--base-epochs", type=int, default=30)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--max-train", type=int, default=None, help="Debug only")
+    ap.add_argument("--extra-tests", nargs="*", default=[], help="Additional test sets (names in --split-dir or paths)")
     a = ap.parse_args()
     device = "cuda" if torch.cuda.is_available() else "cpu"
     out, cache = Path(a.out_dir), Path(a.cache_dir)
@@ -249,7 +250,16 @@ def main():
             if sp == "train" and a.max_train:
                 rows = rows[:a.max_train]
             data[sp] = rows
-    feats = {sp: embed(rows, a.encoder, a.max_len, cache / f"{sp}_{a.max_len}.npy", device)
+    for t in a.extra_tests:  # further test sets, scored by the same trained models (names in --split-dir or paths)
+        f = Path(t) if t.endswith(".jsonl") else Path(a.split_dir) / f"{t}.jsonl"
+        if f.exists():
+            data[f.stem] = read_jsonl(f)
+    # The cache key includes a hash of the article ids, so two partitions with equally many articles
+    # (for example outlet_balanced and size_matched) never share cached features.
+    def key(rows):
+        import hashlib
+        return hashlib.sha1(",".join(str(r["id"]) for r in rows).encode()).hexdigest()[:12]
+    feats = {sp: embed(rows, a.encoder, a.max_len, cache / f"{sp}_{a.max_len}_{key(rows)}.npy", device)
              for sp, rows in data.items()}
     log(f"features ready in {time.time() - t0:.0f}s: " + ", ".join(f"{k} {v.shape}" for k, v in feats.items()))
 
@@ -281,7 +291,7 @@ def main():
         m = train_base(make, act, Xa, sig_y(tr_a, s), feats["val"], sig_y(data["val"], s),
                        len(SIGNAL_CLASSES[s]), device, a.base_epochs, a.seed, log)
         vectors[s] = {"train_b": predict(m, Xb, device, feats=True)}
-        for sp in ("val", "test", "test_xsource"):
+        for sp in [x for x in feats if x not in ("train",)]:
             if sp in feats:
                 vectors[s][sp] = predict(m, feats[sp], device, feats=True)
                 sig_pred.setdefault(sp, {})[s] = predict(m, feats[sp], device).argmax(-1)
@@ -293,9 +303,7 @@ def main():
     meta = train_meta(cat("train_b"), lab_y(tr_b), cat("val"), lab_y(data["val"]), device, a.seed, log)
     train_seconds = time.time() - t_train
 
-    for sp in ("test", "test_xsource"):
-        if sp not in data:
-            continue
+    for sp in [x for x in data if x not in ("train", "val")]:
         t1 = time.time()
         with torch.no_grad():
             z = torch.relu(meta(torch.tensor(cat(sp), device=device))).cpu().numpy()

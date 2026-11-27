@@ -68,4 +68,4 @@ topic-controlled accuracy (`topic_control.py`), outlet-balanced, leave-one-publi
 
 ## Model weights
 
-LoRA adapter weights for RANA (Gemma 3 12B, seed 3407) are available at https://huggingface.co/brianrizqi/rana-gemma3-12b-lora, subject to the Gemma terms of use.
+LoRA adapter weights for RANA (Gemma 3 12B) are available at https://huggingface.co/brianrizqi/rana-gemma3-12b-lora: seed 3407 at the repository root, seeds 42 and 2024 in the subfolders `seed42/` and `seed2024/`. Adapters of every other fine-tuned run are at https://huggingface.co/brianrizqi/rana-native-ads-adapters, one subfolder per run named as in `revision/release/run_configs/` (for example `qwen3-8b__reasoning_first/`). Each is subject to the terms of use of its base model.

@@ -39,6 +39,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import NATIVE, NEWS, SIGNALS, label_from_signals, read_jsonl, write_json, write_jsonl
+from sheet_guides import add_guide, data_rows
 
 EDITS = {
     "single_perspective": ("Add one short, attributed independent or critical viewpoint (for example an analyst, a consumer "
@@ -121,6 +122,7 @@ def cmd_sheet(a):
     for row in ws.iter_rows():
         for c in row:
             c.alignment = Alignment(wrap_text=True, vertical="top")
+    add_guide(wb, "validasi_edit")
     wb.save(out / "edit_validation.xlsx")
     write_json(out / "edit_validation.key.json", key)
     print(f"✅ {out / 'edit_validation.xlsx'} ({n} edits)")
@@ -160,9 +162,8 @@ def cmd_analyze(a):
     write_json(Path(a.report) / "counterfactual_summary.json", res)
     v = Path(a.out_dir) / "edit_validation.xlsx"
     if v.exists():
-        from openpyxl import load_workbook
         key = {k["item"]: k for k in json.load(open(Path(a.out_dir) / "edit_validation.key.json"))}
-        vals = list(load_workbook(v, read_only=True).active.iter_rows(values_only=True))[1:]
+        vals = data_rows(v, "validasi_edit")[1:]
         agg = {}
         for row in vals:
             if row[0] is None or row[4] in (None, ""):

@@ -48,6 +48,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import NATIVE, NEWS, SIGNALS, read_jsonl, write_json
+from sheet_guides import add_guide, data_rows
 from stats import holm
 
 LAB_ID = {NATIVE: "Native Ads", NEWS: "Pure News"}
@@ -84,7 +85,7 @@ def texts(split_dir):
     return t
 
 
-def save_xlsx(path, header, rows, widths, binary=(), scale=(), choice=()):
+def save_xlsx(path, header, rows, widths, binary=(), scale=(), choice=(), guide=None):
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font, PatternFill
     from openpyxl.worksheet.datavalidation import DataValidation
@@ -116,12 +117,13 @@ def save_xlsx(path, header, rows, widths, binary=(), scale=(), choice=()):
         for c in row:
             c.alignment = Alignment(wrap_text=True, vertical="top")
     ws.freeze_panes = "B2"
+    if guide:
+        add_guide(wb, guide)
     wb.save(path)
 
 
 def read_sheet(path):
-    from openpyxl import load_workbook
-    vals = list(load_workbook(path, read_only=True).active.iter_rows(values_only=True))
+    vals = data_rows(path, "penilaian")
     return {int(float(r[0])): {h: r[j] for j, h in enumerate(vals[0])} for r in vals[1:] if r[0] is not None}
 
 
@@ -204,7 +206,7 @@ def cmd_build_retrieval(a):
         key["raters"][rater] = group
         save_xlsx(out / f"rater_{rater}.xlsx", header, rows, widths,
                   binary=("your_decision_native (1/0)", "accept_model_label (1/0)"), scale=("confidence (1-5)",),
-                  choice=("minutes", "comment"))
+                  choice=("minutes", "comment"), guide="studi_r")
     write_json(out / "key.json", key)
     print(f"✅ {len(chosen)} articles, {len(a.raters)} raters -> {out} (key.json stays with the authors)")
 
@@ -306,7 +308,7 @@ def cmd_build_models(a):
                         "label_pred": p["label_pred"], "signals_pred": p["signals_pred"], "signals_gold": p["signals_gold"]})
     for r in a.raters:
         save_xlsx(out / f"rater_{r}.xlsx", header, rows, widths,
-                  binary=["label_ok"] + [f"{s}_ok" for s in SIGNALS], scale=("editorial_usefulness",), choice=("comment",))
+                  binary=["label_ok"] + [f"{s}_ok" for s in SIGNALS], scale=("editorial_usefulness",), choice=("comment",), guide="studi_m")
     write_json(out / "key.json", {"models": a.models, "raters": a.raters, "items": key})
     print(f"✅ {len(chosen)} articles x {len(a.models)} outputs, {len(a.raters)} raters -> {out}")
 
@@ -323,8 +325,7 @@ def cmd_analyze_models(a):
     models, raters = K["models"], K["raters"]
     rows_by_rater = {}  # the four outputs of an article share its item number, so rows are keyed by (item, output)
     for r in raters:
-        from openpyxl import load_workbook
-        vals = list(load_workbook(out / f"rater_{r}.xlsx", read_only=True).active.iter_rows(values_only=True))
+        vals = data_rows(out / f"rater_{r}.xlsx", "penilaian")
         h = vals[0]
         rows_by_rater[r] = {(int(float(v[0])), v[1]): dict(zip(h, v)) for v in vals[1:] if v[0] is not None}
     items = sorted({k["item"] for k in K["items"]})

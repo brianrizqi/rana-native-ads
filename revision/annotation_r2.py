@@ -33,6 +33,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import NATIVE, NEWS, SIGNALS, SIGNAL_VALUES, label_from_signals, read_jsonl, split_sentences, write_json, write_jsonl
+from sheet_guides import add_guide, data_rows
 
 FIELDS = list(SIGNALS) + ["label"]
 CHOICES = {**{s: list(SIGNAL_VALUES[s]) for s in SIGNALS}, "label": [NATIVE, NEWS]}
@@ -113,6 +114,7 @@ def cmd_build(a):
             for c in row:
                 c.alignment = Alignment(wrap_text=True, vertical="top")
         ws.freeze_panes = "C2"
+        add_guide(wb, "anotasi")
         wb.save(out / f"annotator_{ann}.xlsx")
     write_json(out / "key.json", {"annotators": a.annotators, "items": key, "max_chars": a.max_chars, "seed": a.seed})
     print(f"✅ {len(items)} items ({Counter(r['stratum'] for r in items)}) for {len(a.annotators)} annotators -> {out}")
@@ -141,14 +143,13 @@ def cohen(x, y):
 
 
 def cmd_analyze(a):
-    from openpyxl import load_workbook
     from judge import kalpha
     out = Path(a.out_dir)
     K = json.load(open(out / "key.json", encoding="utf-8"))
     anns = K["annotators"]
     sheets = {}
     for ann in anns:
-        vals = list(load_workbook(out / f"annotator_{ann}.xlsx", read_only=True).active.iter_rows(values_only=True))
+        vals = data_rows(out / f"annotator_{ann}.xlsx", "anotasi")
         h = vals[0]
         sheets[ann] = {int(v[0]): {k: (str(x).strip().lower() if x is not None else "") for k, x in zip(h, v)}
                        for v in vals[1:] if v[0] is not None}
